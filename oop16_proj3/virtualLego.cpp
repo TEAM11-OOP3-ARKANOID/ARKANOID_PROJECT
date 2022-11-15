@@ -13,9 +13,12 @@
 #include "d3dUtility.h"
 #include <vector>
 #include <ctime>
-#include <cstdlib>
+
 #include <cstdio>
 #include <cassert>
+namespace std {
+	#include <cstdlib>
+}
 
 IDirect3DDevice9* Device = NULL;
 
@@ -51,6 +54,7 @@ private :
     float                   m_radius;
 	float					m_velocity_x;
 	float					m_velocity_z;
+	int intersect;
 
 public:
     CSphere(void)
@@ -60,6 +64,7 @@ public:
         m_radius = 0;
 		m_velocity_x = 0;
 		m_velocity_z = 0;
+		intersect = 0;
         m_pSphereMesh = NULL;
     }
     ~CSphere(void) {}
@@ -101,14 +106,36 @@ public:
 	
     bool hasIntersected(CSphere& ball) 
 	{
+		//check two ball's radius
 		// Insert your code here.
+
+		float distancebtwballs = sqrt(pow(center_x - ball.center_x, 2) + pow(center_y - ball.center_y, 2) + pow(center_z - ball.center_z, 2));
+
+		if (distancebtwballs > (M_RADIUS * 2)) {
+			ball.intersect = 0;
+		}
+		if (distancebtwballs <= (M_RADIUS * 2) && ball.intersect==0) {
+			ball.intersect = 1;
+			return true;
+		}
+		
 
 		return false;
 	}
 	
 	void hitBy(CSphere& ball) 
 	{ 
+
+		//normal vector
+
+
+		if (ball.intersect == 1) {
+			float temp = ball.m_velocity_x;
+			ball.m_velocity_x = ball.m_velocity_z;
+			ball.m_velocity_z = -temp;
+		}
 		// Insert your code here.
+		
 	}
 
 	void ballUpdate(float timeDiff) 
@@ -242,12 +269,14 @@ public:
 	bool hasIntersected(CSphere& ball) 
 	{
 		// Insert your code here.
+
 		return false;
 	}
 
 	void hitBy(CSphere& ball) 
 	{
 		// Insert your code here.
+
 	}    
 	
 	void setPosition(float x, float y, float z)
@@ -483,7 +512,11 @@ bool Display(float timeDelta)
 		for(i = 0 ;i < 4; i++){
 			for(j = 0 ; j < 4; j++) {
 				if(i >= j) {continue;}
-				g_sphere[i].hitBy(g_sphere[j]);
+				if (g_sphere[i].hasIntersected(g_sphere[j]) == true) {
+
+					g_sphere[i].hitBy(g_sphere[j]);
+
+				}
 			}
 		}
 
