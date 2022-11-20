@@ -522,9 +522,9 @@ bool Display(float timeDelta)
 
 		// check whether any two balls hit together and update the direction of balls
 		for(i = 0 ;i < 54; i++){
-			if (g_sphere_yellow[j].hasIntersected(redball) == true) {
+			if (g_sphere_yellow[i].hasIntersected(redball) == true) {
 
-				g_sphere_yellow[j].hitBy(redball);
+				g_sphere_yellow[i].hitBy(redball);
 			}
 		}
 
