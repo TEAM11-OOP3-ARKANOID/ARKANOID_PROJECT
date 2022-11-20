@@ -513,21 +513,24 @@ bool Display(float timeDelta)
 		Device->BeginScene();
 		
 		// update the position of each ball. during update, check whether each ball hit by walls.
-		for( i = 0; i < 3; i++) {
-			g_sphere_yellow[i].ballUpdate(timeDelta);
-			for(j = 0; j < 4; j++){ g_legowall[i].hitBy(g_sphere_yellow[j]); }
-		}
+
+		g_sphere_yellow[i].ballUpdate(timeDelta);
+		for (j = 0; j < 3; j++) { g_legowall[j].hitBy(redball); }
+
+		whiteball.ballUpdate(timeDelta);
+		redball.ballUpdate(timeDelta);
 
 		// check whether any two balls hit together and update the direction of balls
-		for(i = 0 ;i < 4; i++){
-			for(j = 0 ; j < 4; j++) {
-				if(i >= j) {continue;}
-				if (g_sphere_yellow[i].hasIntersected(g_sphere_yellow[j]) == true) {
+		for(i = 0 ;i < 54; i++){
+			if (redball.hasIntersected(g_sphere_yellow[j]) == true) {
 
-					g_sphere_yellow[i].hitBy(g_sphere_yellow[j]);
-
-				}
+				g_sphere_yellow[j].hitBy(redball);
 			}
+		}
+
+		if (whiteball.hasIntersected(redball) == true) {
+
+			whiteball.hitBy(redball);
 		}
 
 		// draw plane, walls, and spheres
@@ -556,6 +559,7 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	static bool isReset = true;
     static int old_x = 0;
     static int old_y = 0;
+	static int spacecheck = 0;
     static enum { WORLD_MOVE, LIGHT_MOVE, BLOCK_MOVE } move = WORLD_MOVE;
 	
 	switch( msg ) {
@@ -578,18 +582,13 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 }
                 break;
 			case VK_SPACE: //start
+				if (spacecheck == 0) {
+
+					redball.setPower(0, 3);
+				}
 				
-				D3DXVECTOR3 targetpos = g_sphere_yellow[0].getCenter();
-				D3DXVECTOR3	redpos = redball.getCenter();
 
-				double theta = acos(sqrt(pow(targetpos.x - redpos.x, 2)) / sqrt(pow(targetpos.x - redpos.x, 2) +
-					pow(targetpos.z - redpos.z, 2)));		// 기본 1 사분면
-				if (targetpos.z - redpos.z <= 0 && targetpos.x - redpos.x >= 0) { theta = -theta; }	//4 사분면
-				if (targetpos.z - redpos.z >= 0 && targetpos.x - redpos.x <= 0) { theta = PI - theta; } //2 사분면
-				if (targetpos.z - redpos.z <= 0 && targetpos.x - redpos.x <= 0) { theta = PI + theta; } // 3 사분면
-				redball.setPower(cos(theta), sin(theta));
-
-
+				spacecheck = 1;
 				/*double theta = acos(sqrt(pow(targetpos.x - whitepos.x, 2)) / sqrt(pow(targetpos.x - whitepos.x, 2) +
 					pow(targetpos.z - whitepos.z, 2)));		// 기본 1 사분면
 				if (targetpos.z - whitepos.z <= 0 && targetpos.x - whitepos.x >= 0) { theta = -theta; }	//4 사분면
@@ -614,15 +613,18 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 			dx = (old_x - new_x);// * 0.01f;
 			dy = (old_y - new_y);// * 0.01f;
-			D3DXVECTOR3 coord3d_white=whiteball.getCenter();
-			whiteball.setCenter(coord3d_white.x+dx * (-0.007f),coord3d_white.y,coord3d_white.z );
+			D3DXVECTOR3 coord3d_white = whiteball.getCenter();
+			whiteball.setCenter(coord3d_white.x + dx * (-0.007f), coord3d_white.y, coord3d_white.z);
 
-			D3DXVECTOR3 coord3d_red = redball.getCenter();
-			redball.setCenter(coord3d_red.x + (dx) * (-0.007f), coord3d_red.y, coord3d_red.z);
+			if (spacecheck == 0) {;
+
+				D3DXVECTOR3 coord3d_red = redball.getCenter();
+				redball.setCenter(coord3d_red.x + (dx) * (-0.007f), coord3d_red.y, coord3d_red.z);
+				
+			}
 			old_x = new_x;
 			old_y = new_y;
 			
-		
 			
 
 
