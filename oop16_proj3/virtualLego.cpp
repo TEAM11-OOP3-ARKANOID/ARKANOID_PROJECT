@@ -129,15 +129,24 @@ public:
 	
 	void hitBy(CSphere& ball) 
 	{ 
+		D3DXVECTOR3 targetpos = this->getCenter();
+		D3DXVECTOR3 redpos = ball.getCenter();
+
+		double theta = acos(sqrt(pow(targetpos.x - redpos.x, 2)) / sqrt(pow(targetpos.x - redpos.x, 2) +
+			pow(targetpos.z - redpos.z, 2)));		// 기본 1 사분면
+		if (targetpos.z - redpos.z <= 0 && targetpos.x -redpos.x >= 0) { theta = -theta; }	//4 사분면
+		if (targetpos.z - redpos.z >= 0 && targetpos.x - redpos.x <= 0) { theta = PI - theta; } //2 사분면
+		if (targetpos.z - redpos.z <= 0 && targetpos.x - redpos.x <= 0) { theta = PI + theta; } // 3 사분면
+		double distance = sqrt(pow(targetpos.x - redpos.x, 2) + pow(targetpos.z - redpos.z, 2));
+		ball.setPower(-2 * cos(theta), -2 * sin(theta));
 
 		//normal vector
 
-
-		if (ball.intersect == 1) {
+		/*if (ball.intersect == 1) {
 			float temp = ball.m_velocity_x;
 			ball.m_velocity_x = ball.m_velocity_z;
 			ball.m_velocity_z = -temp;
-		}
+		}*/
 		// Insert your code here.
 		
 	}
@@ -169,10 +178,11 @@ public:
 		}
 		else { this->setPower(0,0);}
 		//this->setPower(this->getVelocity_X() * DECREASE_RATE, this->getVelocity_Z() * DECREASE_RATE);
+		
 		double rate = 1 -  (1 - DECREASE_RATE)*timeDiff * 400;
 		if(rate < 0 )
 			rate = 0;
-		this->setPower(getVelocity_X() * rate, getVelocity_Z() * rate);
+		this->setPower(getVelocity_X() * 1, getVelocity_Z() * 1);
 	}
 
 	double getVelocity_X() { return this->m_velocity_x;	}
@@ -525,12 +535,19 @@ bool Display(float timeDelta)
 			if (g_sphere_yellow[i].hasIntersected(redball) == true) {
 
 				g_sphere_yellow[i].hitBy(redball);
+				g_sphere_yellow[i].destroy();
+				if (false == g_sphere_yellow[i].create(Device, sphereColor[0])) return false;
+				g_sphere_yellow[i].setCenter(222, (float)M_RADIUS,222);
+				g_sphere_yellow[i].setPower(0, 0);
+
 			}
 		}
 
 		if (whiteball.hasIntersected(redball) == true) {
 
 			whiteball.hitBy(redball);
+
+
 		}
 
 		// draw plane, walls, and spheres
@@ -584,7 +601,7 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			case VK_SPACE: //start
 				if (spacecheck == 0) {
 
-					redball.setPower(0, 3);
+					redball.setPower(0, 2);
 				}
 				
 
