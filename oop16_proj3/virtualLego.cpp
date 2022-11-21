@@ -26,6 +26,8 @@ IDirect3DDevice9* Device = NULL;
 const int Width  = 1024;
 const int Height = 768;
 
+static int spacecheck = 0;
+
 // There are four balls
 // initialize the position (coordinate) of each ball (ball0 ~ ball3)
 const float spherePos[54][2] = { {-1.575f,3} , {-1.125f,3} , {-0.675f,3} ,{-0.225,3} ,{0.225f,3} ,{0.675f,3} ,{1.125f,3} ,{1.575f,3} ,{2.000f,2.55f} ,{-2.000f,2.55f} ,{-2.4f,2.1f} ,{2.4f,2.1f} ,
@@ -140,6 +142,12 @@ public:
 		double distance = sqrt(pow(targetpos.x - redpos.x, 2) + pow(targetpos.z - redpos.z, 2));
 		ball.setPower(-2 * cos(theta), -2 * sin(theta));
 
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> 58decb3701ba3d2271039f7f1865abbda8c2defc
 		//normal vector
 
 		/*if (ball.intersect == 1) {
@@ -282,14 +290,50 @@ public:
 	
 	bool hasIntersected(CSphere& ball) 
 	{
+<<<<<<< HEAD
 		// Insert your code here.
 
+=======
+
+		D3DXVECTOR3 b = ball.getCenter();
+		float wx1 = 3.5;
+		float wx2 = -3.5;
+		float wz1 = -5.12f;
+		float wz2 = 5.12f;
+
+		if (sqrt(pow(wx1 - b.x, 2)) <= M_RADIUS || sqrt(pow(wx2 - b.x <= M_RADIUS, 2)) || sqrt(pow(wz2 - b.z, 2)) <= M_RADIUS || sqrt(pow(wz1 - b.z, 2)) <= M_RADIUS) { return true; }
+>>>>>>> 58decb3701ba3d2271039f7f1865abbda8c2defc
 		return false;
 	}
 
 	void hitBy(CSphere& ball) 
 	{
+<<<<<<< HEAD
 		// Insert your code here.
+=======
+		D3DXVECTOR3 rb = ball.getCenter();
+		float vx = ball.getVelocity_X();
+		float vz = ball.getVelocity_Z();
+		float wx1 = 3.5;
+		float wx2 = -3.5;
+		float wz1 = -5.12f;
+		float wz2 = 5.12f;
+
+		
+			if (sqrt(pow(wx1 - rb.x, 2)) <= M_RADIUS && vx > 0) { vx = -vx; } // wall[0]의 경우
+			if (sqrt(pow(wx2 - rb.x, 2)) <= M_RADIUS && vx < 0) { vx = -vx; } // wall[1]의 경우
+			if (sqrt(pow(wz2 - rb.z, 2)) <= M_RADIUS && vz > 0) { vz = -vz; } // wall[2]의 경우
+			
+			if (sqrt(pow(wz1 - rb.z, 2)) <= M_RADIUS && vz < 0) {
+				ball.destroy();
+				ball.create(Device, d3d::RED);
+				ball.setCenter(0, (float)M_RADIUS, -4.5f);
+				spacecheck = 0;
+				vx = 0;  
+				vz = 0;
+			}
+			ball.setPower(vx, vz);
+>>>>>>> 58decb3701ba3d2271039f7f1865abbda8c2defc
 
 	}    
 	
@@ -304,7 +348,11 @@ public:
 	}
 	
     float getHeight(void) const { return M_HEIGHT; }
-	
+	D3DXVECTOR3 getCenter(void) const
+	{
+		D3DXVECTOR3 org(m_x,m_height, m_z);
+		return org;
+	}
 	
 	
 private :
@@ -440,7 +488,11 @@ bool Setup()
 	// create walls and set the position. note that there are four walls
 	if (false == g_legowall[0].create(Device, -1, -1, 7, 0.3f, 0.12f, d3d::DARKRED)) return false;
 	g_legowall[0].setPosition(0.0f, 0.12f, 5.06f);
+<<<<<<< HEAD
 	//if (false == g_legowall[1].create(Device, -1, -1, 6, 0.3f, 0.12f, d3d::DARKRED)) return false;
+=======
+	//if (false == g_legowall[1].create(Device, -1, -1, 0, 0.3f, 0.12f, d3d::DARKRED)) return false;
+>>>>>>> 58decb3701ba3d2271039f7f1865abbda8c2defc
 	//g_legowall[1].setPosition(0.0f, 0.12f, -4.06f);
 	if (false == g_legowall[1].create(Device, -1, -1, 0.12f, 0.3f, 10.24f, d3d::DARKRED)) return false;
 	g_legowall[1].setPosition(3.56f, 0.12f, 0.0f);
@@ -525,7 +577,10 @@ bool Display(float timeDelta)
 		// update the position of each ball. during update, check whether each ball hit by walls.
 
 		g_sphere_yellow[i].ballUpdate(timeDelta);
+<<<<<<< HEAD
 		for (j = 0; j < 3; j++) { g_legowall[j].hitBy(redball); }
+=======
+>>>>>>> 58decb3701ba3d2271039f7f1865abbda8c2defc
 
 		whiteball.ballUpdate(timeDelta);
 		redball.ballUpdate(timeDelta);
@@ -550,6 +605,16 @@ bool Display(float timeDelta)
 
 		}
 
+<<<<<<< HEAD
+=======
+		//check if the redball has intersected the wall
+		if (g_legowall->hasIntersected(redball)) {
+			
+			g_legowall->hitBy(redball);
+
+		}
+
+>>>>>>> 58decb3701ba3d2271039f7f1865abbda8c2defc
 		// draw plane, walls, and spheres
 		g_legoPlane.draw(Device, g_mWorld);
 		for (i = 0; i < 3; i++) {
@@ -606,6 +671,10 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				
 
 				spacecheck = 1;
+<<<<<<< HEAD
+=======
+
+>>>>>>> 58decb3701ba3d2271039f7f1865abbda8c2defc
 				/*double theta = acos(sqrt(pow(targetpos.x - whitepos.x, 2)) / sqrt(pow(targetpos.x - whitepos.x, 2) +
 					pow(targetpos.z - whitepos.z, 2)));		// 기본 1 사분면
 				if (targetpos.z - whitepos.z <= 0 && targetpos.x - whitepos.x >= 0) { theta = -theta; }	//4 사분면
@@ -615,6 +684,9 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				g_sphere_yellow[3].setPower(distance * cos(theta), distance * sin(theta));*/
 
 				break;
+
+			case VK_RBUTTON:
+
 
 			}
 			break;
@@ -636,7 +708,11 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			if (spacecheck == 0) {;
 
 				D3DXVECTOR3 coord3d_red = redball.getCenter();
+<<<<<<< HEAD
 				redball.setCenter(coord3d_red.x + (dx) * (-0.007f), coord3d_red.y, coord3d_red.z);
+=======
+				redball.setCenter(coord3d_white.x + (dx) * (-0.007f), coord3d_red.y, coord3d_red.z);
+>>>>>>> 58decb3701ba3d2271039f7f1865abbda8c2defc
 				
 			}
 			old_x = new_x;
