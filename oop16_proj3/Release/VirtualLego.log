@@ -1,34 +1,17 @@
 ﻿  virtualLego.cpp
-<<<<<<< HEAD
 C:\Users\pc\Desktop\oop3\oop22_proj3\oop16_proj3\d3dUtility.h(23,1): warning C4005: 'INFINITY': 매크로 재정의
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt\corecrt_math.h(88): message : 'INFINITY'의 이전 정의를 참조하십시오.
-C:\Users\pc\Desktop\oop3\oop22_proj3\oop16_proj3\virtualLego.cpp(37,1): warning C4305: '초기화 중': 'double'에서 'const float'(으)로 잘립니다.
-C:\Users\pc\Desktop\oop3\oop22_proj3\oop16_proj3\virtualLego.cpp(118,26): warning C4244: '초기화 중': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\pc\Desktop\oop3\oop22_proj3\oop16_proj3\virtualLego.cpp(156,1): warning C4305: '초기화 중': 'double'에서 'float'(으)로 잘립니다.
-C:\Users\pc\Desktop\oop3\oop22_proj3\oop16_proj3\virtualLego.cpp(193,24): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\pc\Desktop\oop3\oop22_proj3\oop16_proj3\virtualLego.cpp(194,24): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\pc\Desktop\oop3\oop22_proj3\oop16_proj3\virtualLego.cpp(306,33): warning C4305: 'return': 'double'에서 'float'(으)로 잘립니다.
-C:\Users\pc\Desktop\oop3\oop22_proj3\oop16_proj3\virtualLego.cpp(437,8): warning C4305: '인수': 'double'에서 'float'(으)로 잘립니다.
-C:\Users\pc\Desktop\oop3\oop22_proj3\oop16_proj3\virtualLego.cpp(631,16): warning C4244: '=': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\pc\Desktop\oop3\oop22_proj3\oop16_proj3\virtualLego.cpp(632,16): warning C4244: '=': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\pc\Desktop\oop3\oop22_proj3\oop16_proj3\virtualLego.cpp(678,18): warning C4244: '=': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\pc\Desktop\oop3\oop22_proj3\oop16_proj3\virtualLego.cpp(679,18): warning C4244: '=': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\pc\Desktop\oop3\oop22_proj3\oop16_proj3\virtualLego.cpp(39,1): warning C4305: '초기화 중': 'double'에서 'const float'(으)로 잘립니다.
+C:\Users\pc\Desktop\oop3\oop22_proj3\oop16_proj3\virtualLego.cpp(125,26): warning C4244: '초기화 중': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\pc\Desktop\oop3\oop22_proj3\oop16_proj3\virtualLego.cpp(166,1): warning C4305: '초기화 중': 'double'에서 'float'(으)로 잘립니다.
+C:\Users\pc\Desktop\oop3\oop22_proj3\oop16_proj3\virtualLego.cpp(203,24): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\pc\Desktop\oop3\oop22_proj3\oop16_proj3\virtualLego.cpp(204,24): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\pc\Desktop\oop3\oop22_proj3\oop16_proj3\virtualLego.cpp(309,12): warning C4244: '초기화 중': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\pc\Desktop\oop3\oop22_proj3\oop16_proj3\virtualLego.cpp(310,12): warning C4244: '초기화 중': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\pc\Desktop\oop3\oop22_proj3\oop16_proj3\virtualLego.cpp(342,30): warning C4305: 'return': 'double'에서 'float'(으)로 잘립니다.
+C:\Users\pc\Desktop\oop3\oop22_proj3\oop16_proj3\virtualLego.cpp(510,5): warning C4305: '인수': 'double'에서 'float'(으)로 잘립니다.
+C:\Users\pc\Desktop\oop3\oop22_proj3\oop16_proj3\virtualLego.cpp(738,15): warning C4244: '=': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\pc\Desktop\oop3\oop22_proj3\oop16_proj3\virtualLego.cpp(739,15): warning C4244: '=': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\pc\Desktop\oop3\oop22_proj3\oop16_proj3\virtualLego.cpp(788,17): warning C4244: '=': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\pc\Desktop\oop3\oop22_proj3\oop16_proj3\virtualLego.cpp(789,17): warning C4244: '=': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   VirtualLego.vcxproj -> C:\Users\pc\Desktop\oop3\oop22_proj3\oop16_proj3\Release\VirtualLego.exe
-=======
-C:\Users\millk\Downloads\ARKANOID_PROJECT-main\ARKANOID_PROJECT-main\oop16_proj3\d3dUtility.h(23,1): warning C4005: 'INFINITY': 매크로 재정의
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt\corecrt_math.h(88): message : 'INFINITY'의 이전 정의를 참조하십시오.
-C:\Users\millk\Downloads\ARKANOID_PROJECT-main\ARKANOID_PROJECT-main\oop16_proj3\virtualLego.cpp(39,1): warning C4305: '초기화 중': 'double'에서 'const float'(으)로 잘립니다.
-C:\Users\millk\Downloads\ARKANOID_PROJECT-main\ARKANOID_PROJECT-main\oop16_proj3\virtualLego.cpp(120,26): warning C4244: '초기화 중': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\millk\Downloads\ARKANOID_PROJECT-main\ARKANOID_PROJECT-main\oop16_proj3\virtualLego.cpp(161,1): warning C4305: '초기화 중': 'double'에서 'float'(으)로 잘립니다.
-C:\Users\millk\Downloads\ARKANOID_PROJECT-main\ARKANOID_PROJECT-main\oop16_proj3\virtualLego.cpp(198,24): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\millk\Downloads\ARKANOID_PROJECT-main\ARKANOID_PROJECT-main\oop16_proj3\virtualLego.cpp(199,24): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\millk\Downloads\ARKANOID_PROJECT-main\ARKANOID_PROJECT-main\oop16_proj3\virtualLego.cpp(304,12): warning C4244: '초기화 중': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\millk\Downloads\ARKANOID_PROJECT-main\ARKANOID_PROJECT-main\oop16_proj3\virtualLego.cpp(305,12): warning C4244: '초기화 중': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\millk\Downloads\ARKANOID_PROJECT-main\ARKANOID_PROJECT-main\oop16_proj3\virtualLego.cpp(338,33): warning C4305: 'return': 'double'에서 'float'(으)로 잘립니다.
-C:\Users\millk\Downloads\ARKANOID_PROJECT-main\ARKANOID_PROJECT-main\oop16_proj3\virtualLego.cpp(473,8): warning C4305: '인수': 'double'에서 'float'(으)로 잘립니다.
-C:\Users\millk\Downloads\ARKANOID_PROJECT-main\ARKANOID_PROJECT-main\oop16_proj3\virtualLego.cpp(672,16): warning C4244: '=': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\millk\Downloads\ARKANOID_PROJECT-main\ARKANOID_PROJECT-main\oop16_proj3\virtualLego.cpp(673,16): warning C4244: '=': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\millk\Downloads\ARKANOID_PROJECT-main\ARKANOID_PROJECT-main\oop16_proj3\virtualLego.cpp(719,18): warning C4244: '=': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\millk\Downloads\ARKANOID_PROJECT-main\ARKANOID_PROJECT-main\oop16_proj3\virtualLego.cpp(720,18): warning C4244: '=': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  VirtualLego.vcxproj -> C:\Users\millk\Downloads\ARKANOID_PROJECT-main\ARKANOID_PROJECT-main\oop16_proj3\Release\VirtualLego.exe
->>>>>>> 58decb3701ba3d2271039f7f1865abbda8c2defc
