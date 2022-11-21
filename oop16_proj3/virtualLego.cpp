@@ -315,9 +315,8 @@ public:
 			
 			if (sqrt(pow(wz1 - rb.z, 2)) <= M_RADIUS && vz < 0) {
 				ball.destroy();
-				ball.create(Device, d3d::RED);
-				ball.setCenter(0, (float)M_RADIUS, -4.5f);
-				spacecheck = 0;
+				
+				spacecheck = 2;
 				vx = 0;  
 				vz = 0;
 			}
@@ -587,8 +586,13 @@ bool Display(float timeDelta)
 
 		//check if the redball has intersected the wall
 		if (g_legowall->hasIntersected(redball)) {
-			
+
 			g_legowall->hitBy(redball);
+			if (spacecheck == 2) {
+				redball.create(Device, d3d::RED);
+				redball.setCenter(whiteball.getCenter().x, (float)M_RADIUS, -4.5f);
+				spacecheck = 0;
+			}
 
 		}
 
@@ -658,7 +662,7 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 				break;
 
-			case VK_RBUTTON:
+			
 
 
 			}
