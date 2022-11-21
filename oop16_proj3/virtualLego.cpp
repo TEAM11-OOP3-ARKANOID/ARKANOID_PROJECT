@@ -300,7 +300,7 @@ public:
 
 	void hitBy(CSphere& ball) 
 	{
-		D3DXVECTOR3 b = ball.getCenter();
+		D3DXVECTOR3 rb = ball.getCenter();
 		float vx = ball.getVelocity_X();
 		float vz = ball.getVelocity_Z();
 		float wx1 = 3.5;
@@ -309,11 +309,11 @@ public:
 		float wz2 = 5.12f;
 
 		
-			if (sqrt(pow(wx1 - b.x, 2)) <= M_RADIUS && vx > 0) { vx = -vx; } // wall[0]의 경우
-			if (sqrt(pow(wx2 - b.x, 2)) <= M_RADIUS && vx < 0) { vx = -vx; } // wall[1]의 경우
-			if (sqrt(pow(wz2 - b.z, 2)) <= M_RADIUS && vz > 0) { vz = -vz; } // wall[2]의 경우
+			if (sqrt(pow(wx1 - rb.x, 2)) <= M_RADIUS && vx > 0) { vx = -vx; } // wall[0]의 경우
+			if (sqrt(pow(wx2 - rb.x, 2)) <= M_RADIUS && vx < 0) { vx = -vx; } // wall[1]의 경우
+			if (sqrt(pow(wz2 - rb.z, 2)) <= M_RADIUS && vz > 0) { vz = -vz; } // wall[2]의 경우
 			
-			if (sqrt(pow(wz1 - b.z, 2)) <= M_RADIUS && vz < 0) {
+			if (sqrt(pow(wz1 - rb.z, 2)) <= M_RADIUS && vz < 0) {
 				ball.destroy();
 				ball.create(Device, d3d::RED);
 				ball.setCenter(0, (float)M_RADIUS, -4.5f);
@@ -587,9 +587,7 @@ bool Display(float timeDelta)
 		}
 
 		//check if the redball has intersected the wall
-
-		for(i = 0; i < 3; i++)
-			if (g_legowall->hasIntersected(redball)) {g_legowall->hitBy(redball);}
+		if (g_legowall->hasIntersected(redball)) {g_legowall->hitBy(redball);}
 
 		// draw plane, walls, and spheres
 		g_legoPlane.draw(Device, g_mWorld);
@@ -677,7 +675,7 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			if (spacecheck == 0) {;
 
 				D3DXVECTOR3 coord3d_red = redball.getCenter();
-				redball.setCenter(coord3d_red.x + (dx) * (-0.007f), coord3d_red.y, coord3d_red.z);
+				redball.setCenter(coord3d_white.x + (dx) * (-0.007f), coord3d_red.y, coord3d_red.z);
 				
 			}
 			old_x = new_x;
