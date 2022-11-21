@@ -291,10 +291,10 @@ public:
 		D3DXVECTOR3 b = ball.getCenter();
 		float wx1 = 3.5;
 		float wx2 = -3.5;
-		float wz1 = 0.0f;
+		float wz1 = -5.12f;
 		float wz2 = 5.12f;
 
-		if (sqrt(pow(wx1 - b.x, 2)) <= M_RADIUS || sqrt(pow(wz2 - b.z <= M_RADIUS, 2)) || sqrt(pow(wz2 - b.z, 2)) <= M_RADIUS) { return true; }
+		if (sqrt(pow(wx1 - b.x, 2)) <= M_RADIUS || sqrt(pow(wx2 - b.x <= M_RADIUS, 2)) || sqrt(pow(wz2 - b.z, 2)) <= M_RADIUS || sqrt(pow(wz1 - b.z, 2)) <= M_RADIUS) { return true; }
 		return false;
 	}
 
@@ -561,7 +561,6 @@ bool Display(float timeDelta)
 		// update the position of each ball. during update, check whether each ball hit by walls.
 
 		g_sphere_yellow[i].ballUpdate(timeDelta);
-		for (j = 0; j < 3; j++) { g_legowall[j].hitBy(redball); }
 
 		whiteball.ballUpdate(timeDelta);
 		redball.ballUpdate(timeDelta);
@@ -587,7 +586,11 @@ bool Display(float timeDelta)
 		}
 
 		//check if the redball has intersected the wall
-		if (g_legowall->hasIntersected(redball)) {g_legowall->hitBy(redball);}
+		if (g_legowall->hasIntersected(redball)) {
+			
+			g_legowall->hitBy(redball);
+
+		}
 
 		// draw plane, walls, and spheres
 		g_legoPlane.draw(Device, g_mWorld);
@@ -654,6 +657,9 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				g_sphere_yellow[3].setPower(distance * cos(theta), distance * sin(theta));*/
 
 				break;
+
+			case VK_RBUTTON:
+
 
 			}
 			break;
