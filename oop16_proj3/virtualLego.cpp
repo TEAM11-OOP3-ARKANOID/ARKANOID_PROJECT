@@ -2,7 +2,7 @@
 //
 // File: virtualLego.cpp
 //
-// Original Author: π⁄√¢«ˆ Chang-hyeon Park, 
+// Original Author: Î∞ïÏ∞ΩÌòÑ Chang-hyeon Park, 
 // Modified by Bong-Soo Sohn and Dong-Jun Kim
 // 
 // Originally programmed for Virtual LEGO. 
@@ -178,10 +178,10 @@ public:
 		D3DXVECTOR3 redpos = ball.getCenter();
 
 		double theta = acos(sqrt(pow(targetpos.x - redpos.x, 2)) / sqrt(pow(targetpos.x - redpos.x, 2) +
-			pow(targetpos.z - redpos.z, 2)));		// ±‚∫ª 1 ªÁ∫–∏È
-		if (targetpos.z - redpos.z <= 0 && targetpos.x - redpos.x >= 0) { theta = -theta; }	//4 ªÁ∫–∏È
-		if (targetpos.z - redpos.z >= 0 && targetpos.x - redpos.x <= 0) { theta = PI - theta; } //2 ªÁ∫–∏È
-		if (targetpos.z - redpos.z <= 0 && targetpos.x - redpos.x <= 0) { theta = PI + theta; } // 3 ªÁ∫–∏È
+			pow(targetpos.z - redpos.z, 2)));		// Í∏∞Î≥∏ 1 ÏÇ¨Î∂ÑÎ©¥
+		if (targetpos.z - redpos.z <= 0 && targetpos.x - redpos.x >= 0) { theta = -theta; }	//4 ÏÇ¨Î∂ÑÎ©¥
+		if (targetpos.z - redpos.z >= 0 && targetpos.x - redpos.x <= 0) { theta = PI - theta; } //2 ÏÇ¨Î∂ÑÎ©¥
+		if (targetpos.z - redpos.z <= 0 && targetpos.x - redpos.x <= 0) { theta = PI + theta; } // 3 ÏÇ¨Î∂ÑÎ©¥
 		ball.setCenter(redpos.x - cos(theta) * 0.02, redpos.y, redpos.z - sin(theta) * 0.02);
 		ball.setPower(-levelpower * cos(theta), -levelpower * sin(theta));
 
@@ -281,6 +281,10 @@ private:
 	float                   m_width;
 	float                   m_depth;
 	float					m_height;
+	float wx1 = 3.5;
+	float wx2 = -3.5;
+	float wz1 = -5.12f;
+	float wz2 = 5.12f;
 
 
 public:
@@ -333,12 +337,9 @@ public:
 	{
 
 		D3DXVECTOR3 b = ball.getCenter();
-		float wx1 = 3.5;
-		float wx2 = -3.5;
-		float wz1 = -5.12f;
-		float wz2 = 5.12f;
 
-		if (sqrt(pow(wx1 - b.x, 2)) <= M_RADIUS || sqrt(pow(wx2 - b.x <= M_RADIUS, 2)) || sqrt(pow(wz2 - b.z, 2)) <= M_RADIUS || sqrt(pow(wz1 - b.z, 2)) <= M_RADIUS) { return true; }
+		if (sqrt(pow(wx1 - b.x, 2)) <= M_RADIUS || sqrt(pow(wx2 - b.x <= M_RADIUS, 2)) || 
+		    sqrt(pow(wz2 - b.z, 2)) <= M_RADIUS || sqrt(pow(wz1 - b.z, 2)) <= M_RADIUS) { return true; }
 		return false;
 	}
 
@@ -347,15 +348,10 @@ public:
 		D3DXVECTOR3 rb = ball.getCenter();
 		float vx = ball.getVelocity_X();
 		float vz = ball.getVelocity_Z();
-		float wx1 = 3.5;
-		float wx2 = -3.5;
-		float wz1 = -5.12f;
-		float wz2 = 5.12f;
 
-
-		if (sqrt(pow(wx1 - rb.x, 2)) <= M_RADIUS && vx > 0) { vx = -vx; } // wall[0]¿« ∞ÊøÏ
-		if (sqrt(pow(wx2 - rb.x, 2)) <= M_RADIUS && vx < 0) { vx = -vx; } // wall[1]¿« ∞ÊøÏ
-		if (sqrt(pow(wz2 - rb.z, 2)) <= M_RADIUS && vz > 0) { vz = -vz; } // wall[2]¿« ∞ÊøÏ
+		if (sqrt(pow(wx1 - rb.x, 2)) <= M_RADIUS && vx > 0) { vx = -vx; } // wall[0]Ïùò Í≤ΩÏö∞
+		if (sqrt(pow(wx2 - rb.x, 2)) <= M_RADIUS && vx < 0) { vx = -vx; } // wall[1]Ïùò Í≤ΩÏö∞
+		if (sqrt(pow(wz2 - rb.z, 2)) <= M_RADIUS && vz > 0) { vz = -vz; } // wall[2]Ïùò Í≤ΩÏö∞
 
 		if (sqrt(pow(wz1 - rb.z, 2)) <= M_RADIUS && vz < 0) {
 			ball.destroy();
@@ -644,8 +640,8 @@ bool Setup()
 
 	g_light.setLight(Device, g_mWorld);
 
-	D3DXCreateFont(Device, 20, 10, 1000, 1, false, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, 0, "Ω≈∏Ì¡∂", &g_pFontSmall);
-	D3DXCreateFont(Device, 40, 20, 1000, 1, false, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, 0, "Ω≈∏Ì¡∂", &g_pFontBig);
+	D3DXCreateFont(Device, 20, 10, 1000, 1, false, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, 0, "Ïã†Î™ÖÏ°∞", &g_pFontSmall);
+	D3DXCreateFont(Device, 40, 20, 1000, 1, false, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, 0, "Ïã†Î™ÖÏ°∞", &g_pFontBig);
 
 
 	return true;
@@ -793,7 +789,7 @@ bool Display(float timeDelta)
 
 				if (selectedLevel == 2) {
 
-					//colorø° µ˚∏• ∫Ò±≥
+					//colorÏóê Îî∞Î•∏ ÎπÑÍµê
 
 					if (g_sphere_yellow[i].getcolor() == d3d::YELLOW) {
 						g_sphere_yellow[i].destroy();
@@ -976,10 +972,10 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				spacecheck = 1;
 
 				/*double theta = acos(sqrt(pow(targetpos.x - whitepos.x, 2)) / sqrt(pow(targetpos.x - whitepos.x, 2) +
-					pow(targetpos.z - whitepos.z, 2)));		// ±‚∫ª 1 ªÁ∫–∏È
-				if (targetpos.z - whitepos.z <= 0 && targetpos.x - whitepos.x >= 0) { theta = -theta; }	//4 ªÁ∫–∏È
-				if (targetpos.z - whitepos.z >= 0 && targetpos.x - whitepos.x <= 0) { theta = PI - theta; } //2 ªÁ∫–∏È
-				if (targetpos.z - whitepos.z <= 0 && targetpos.x - whitepos.x <= 0){ theta = PI + theta; } // 3 ªÁ∫–∏È
+					pow(targetpos.z - whitepos.z, 2)));		// Í∏∞Î≥∏ 1 ÏÇ¨Î∂ÑÎ©¥
+				if (targetpos.z - whitepos.z <= 0 && targetpos.x - whitepos.x >= 0) { theta = -theta; }	//4 ÏÇ¨Î∂ÑÎ©¥
+				if (targetpos.z - whitepos.z >= 0 && targetpos.x - whitepos.x <= 0) { theta = PI - theta; } //2 ÏÇ¨Î∂ÑÎ©¥
+				if (targetpos.z - whitepos.z <= 0 && targetpos.x - whitepos.x <= 0){ theta = PI + theta; } // 3 ÏÇ¨Î∂ÑÎ©¥
 				double distance = sqrt(pow(targetpos.x - whitepos.x, 2) + pow(targetpos.z - whitepos.z, 2));
 				g_sphere_yellow[3].setPower(distance * cos(theta), distance * sin(theta));*/
 
