@@ -80,8 +80,8 @@ private:
 	float					m_velocity_x;
 	float					m_velocity_z;
 	int intersect;
-	
-	
+
+
 	D3DXCOLOR color_sphere;
 
 public:
@@ -182,7 +182,7 @@ public:
 		if (targetpos.z - redpos.z <= 0 && targetpos.x - redpos.x >= 0) { theta = -theta; }	//4 사분면
 		if (targetpos.z - redpos.z >= 0 && targetpos.x - redpos.x <= 0) { theta = PI - theta; } //2 사분면
 		if (targetpos.z - redpos.z <= 0 && targetpos.x - redpos.x <= 0) { theta = PI + theta; } // 3 사분면
-		ball.setCenter(redpos.x - cos(theta)*0.02, redpos.y, redpos.z- sin(theta) * 0.02);
+		ball.setCenter(redpos.x - cos(theta) * 0.02, redpos.y, redpos.z - sin(theta) * 0.02);
 		ball.setPower(-levelpower * cos(theta), -levelpower * sin(theta));
 
 
@@ -558,7 +558,7 @@ void getrandommap() {
 		else {
 			if (false == g_sphere_yellow[i].create(Device, sphereColor[0])) return;
 		}
-		
+
 
 		g_sphere_yellow[i].setCenter(getrandompos(data[i])[0], (float)M_RADIUS, getrandompos(data[i])[1]);
 		g_sphere_yellow[i].setPower(0, 0);
@@ -703,17 +703,17 @@ bool Display(float timeDelta)
 		SetRect(&rc, 390, 680, 0, 0);
 		g_pFontSmall->DrawText(NULL, _T(scoreLpcStr2), -1, &rc, DT_NOCLIP, 0xff000000);
 
-		std::string scoreStr3 = currentLife == -1 ? "Game Over" : "";
+		std::string scoreStr3 = currentLife == -1 && isMenuOn ? "Game Over" : "";
 		LPCSTR scoreLpcStr3 = scoreStr3.c_str();
 		SetRect(&rc, 400, 300, 0, 0);
 		g_pFontBig->DrawText(NULL, _T(scoreLpcStr3), -1, &rc, DT_NOCLIP, 0xffff0000);
 
-		std::string scoreStr4 = currentLife == -1 ? ("Score: " + std::to_string(ballIntersected)) : "";
+		std::string scoreStr4 = currentLife == -1&& isMenuOn ? ("Score: " + std::to_string(ballIntersected)) : "";
 		LPCSTR scoreLpcStr4 = scoreStr4.c_str();
 		SetRect(&rc, 455, 360, 0, 0);
 		g_pFontSmall->DrawText(NULL, _T(scoreLpcStr4), -1, &rc, DT_NOCLIP, 0xffff0000);
 
-		std::string scoreStr5 = isCleared ? "Congratulation!" : "";
+		std::string scoreStr5 = isCleared&&isMenuOn ? "Congratulation!" : "";
 		LPCSTR scoreLpcStr5 = scoreStr5.c_str();
 		SetRect(&rc, 350, 300, 0, 0);
 		g_pFontBig->DrawText(NULL, _T(scoreLpcStr5), -1, &rc, DT_NOCLIP, 0xffff0000);
@@ -771,7 +771,7 @@ bool Display(float timeDelta)
 		//level3
 		// check whether any two balls hit together and update the direction of balls
 
-		
+
 
 		for (i = 0; i < 54; i++) {
 			if (g_sphere_yellow[i].hasIntersected(redball) == true) {
@@ -780,8 +780,10 @@ bool Display(float timeDelta)
 
 				ballIntersected++;
 
-				if (ballIntersected > 53 && selectedLevel!=2) {
+
+				if (ballIntersected > 53 && selectedLevel != 2) {
 					isCleared = true;
+					isMenuOn = true;
 				}
 				if (selectedLevel != 2) {
 					g_sphere_yellow[i].destroy();
@@ -790,9 +792,9 @@ bool Display(float timeDelta)
 				}
 
 				if (selectedLevel == 2) {
-					
+
 					//color에 따른 비교
-					
+
 					if (g_sphere_yellow[i].getcolor() == d3d::YELLOW) {
 						g_sphere_yellow[i].destroy();
 						if (false == g_sphere_yellow[i].create(Device, sphereColor[0])) return false;
@@ -819,7 +821,7 @@ bool Display(float timeDelta)
 			if (levelpower > 4) {
 				levelpower = 4;
 			}
-			if (ballIntersected_inf>53) {
+			if (ballIntersected_inf > 53) {
 				getrandommap();
 				ballIntersected_inf = 0;
 			}
@@ -846,6 +848,10 @@ bool Display(float timeDelta)
 				if (currentLife > -1) {
 					g_lifeBall[currentLife].destroy();
 					currentLife--;
+
+				}
+				if (currentLife == -1) {
+					isMenuOn = true;
 				}
 
 
@@ -909,9 +915,19 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		case VK_SPACE: //start
 			if (isMenuOn) {
 				if (selectedLevel == 0) {
+					for (int i = 0; i < 54; i++) {
+						if (false == g_sphere_yellow[i].create(Device, sphereColor[0])) return false;
+						g_sphere_yellow[i].setCenter(spherePos[i][0], (float)M_RADIUS, spherePos[i][1]);
+						g_sphere_yellow[i].setPower(0, 0);
+					}
 					levelpower = 2;
 				}
 				if (selectedLevel == 1) {
+					for (int i = 0; i < 54; i++) {
+						if (false == g_sphere_yellow[i].create(Device, sphereColor[0])) return false;
+						g_sphere_yellow[i].setCenter(spherePos[i][0], (float)M_RADIUS, spherePos[i][1]);
+						g_sphere_yellow[i].setPower(0, 0);
+					}
 					levelpower = 3.5;
 				}
 				if (selectedLevel == 2) {
@@ -921,12 +937,12 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				isMenuOn = false;
 			}
 			else {
-				
+
 				if (spacecheck == 0) {
 
 					redball.setPower(0, levelpower);
 					if (currentLife == -1 || isCleared) {
-						
+
 						isCleared = false;
 						currentLife = 4;
 						ballIntersected = 0;
@@ -936,7 +952,7 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 						}
 						if (selectedLevel == 2) {
 							ballIntersected_inf = 0;
-							getrandommap();
+							//getrandommap();
 							levelpower = 2;
 						}
 						if (selectedLevel != 2) {
@@ -952,7 +968,7 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 								g_sphere_yellow[i].setPower(0, 0);
 							}
 						}
-						
+
 					}
 				}
 
@@ -991,75 +1007,79 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	case WM_MOUSEMOVE:
 	{
-		int new_x = LOWORD(lParam);
-		int new_y = HIWORD(lParam);
-		float dx;
-		float dy;
+		if (!isMenuOn) {
+			int new_x = LOWORD(lParam);
+			int new_y = HIWORD(lParam);
+			float dx;
+			float dy;
 
 
-		dx = (old_x - new_x);// * 0.01f;
-		dy = (old_y - new_y);// * 0.01f;
-		D3DXVECTOR3 coord3d_white = whiteball.getCenter();
-		whiteball.setCenter(coord3d_white.x + dx * (-0.007f), coord3d_white.y, coord3d_white.z);
+			dx = (old_x - new_x);// * 0.01f;
+			dy = (old_y - new_y);// * 0.01f;
+			D3DXVECTOR3 coord3d_white = whiteball.getCenter();
+			whiteball.setCenter(coord3d_white.x + dx * (-0.007f), coord3d_white.y, coord3d_white.z);
 
-		if (spacecheck == 0) {
-
-
-			D3DXVECTOR3 coord3d_red = redball.getCenter();
-			redball.setCenter(coord3d_white.x + (dx) * (-0.007f), coord3d_red.y, coord3d_red.z);
-
-		}
-		old_x = new_x;
-		old_y = new_y;
+			if (spacecheck == 0) {
 
 
+				D3DXVECTOR3 coord3d_red = redball.getCenter();
+				redball.setCenter(coord3d_white.x + (dx) * (-0.007f), coord3d_red.y, coord3d_red.z);
+
+			}
+			old_x = new_x;
+			old_y = new_y;
 
 
-		if (LOWORD(wParam) & MK_LBUTTON) {
 
-			if (isReset) {
-				isReset = false;
+
+			if (LOWORD(wParam) & MK_LBUTTON) {
+
+				if (isReset) {
+					isReset = false;
+				}
+				else {
+					D3DXVECTOR3 vDist;
+					D3DXVECTOR3 vTrans;
+					D3DXMATRIX mTrans;
+					D3DXMATRIX mX;
+					D3DXMATRIX mY;
+
+					switch (move) {
+					case WORLD_MOVE:
+						dx = (old_x - new_x) * 0.01f;
+						dy = (old_y - new_y) * 0.01f;
+						D3DXMatrixRotationY(&mX, dx);
+						D3DXMatrixRotationX(&mY, dy);
+						g_mWorld = g_mWorld * mX * mY;
+
+						break;
+					}
+				}
+
+				old_x = new_x;
+				old_y = new_y;
+
 			}
 			else {
-				D3DXVECTOR3 vDist;
-				D3DXVECTOR3 vTrans;
-				D3DXMATRIX mTrans;
-				D3DXMATRIX mX;
-				D3DXMATRIX mY;
+				isReset = true;
 
-				switch (move) {
-				case WORLD_MOVE:
-					dx = (old_x - new_x) * 0.01f;
-					dy = (old_y - new_y) * 0.01f;
-					D3DXMatrixRotationY(&mX, dx);
-					D3DXMatrixRotationX(&mY, dy);
-					g_mWorld = g_mWorld * mX * mY;
+				if (LOWORD(wParam) & MK_RBUTTON) {
+					dx = (old_x - new_x);// * 0.01f;
+					dy = (old_y - new_y);// * 0.01f;
 
-					break;
+					//D3DXVECTOR3 coord3d=g_target_blueball.getCenter();
+					//g_target_blueball.setCenter(coord3d.x+dx*(-0.007f),coord3d.y,coord3d.z+dy*0.007f );
 				}
+				old_x = new_x;
+				old_y = new_y;
+
+				move = WORLD_MOVE;
 			}
 
-			old_x = new_x;
-			old_y = new_y;
-
-		}
-		else {
-			isReset = true;
-
-			if (LOWORD(wParam) & MK_RBUTTON) {
-				dx = (old_x - new_x);// * 0.01f;
-				dy = (old_y - new_y);// * 0.01f;
-
-				//D3DXVECTOR3 coord3d=g_target_blueball.getCenter();
-				//g_target_blueball.setCenter(coord3d.x+dx*(-0.007f),coord3d.y,coord3d.z+dy*0.007f );
-			}
-			old_x = new_x;
-			old_y = new_y;
-
-			move = WORLD_MOVE;
 		}
 		break;
 	}
+
 	}
 
 	return ::DefWindowProc(hwnd, msg, wParam, lParam);
