@@ -14,11 +14,15 @@
 #include <vector>
 #include <ctime>
 
+#include <tchar.h>
+#include <string>
+
 #include <cstdio>
 #include <cassert>
 namespace std {
 #include <cstdlib>
 }
+
 
 IDirect3DDevice9* Device = NULL;
 
@@ -27,6 +31,16 @@ const int Width = 1024;
 const int Height = 768;
 
 static int spacecheck = 0;
+float levelpower;
+int count = 0;
+
+int ballIntersected = 0;
+int ballIntersected_inf = 0;
+int currentLife = 4;
+bool isCleared = false;
+
+bool isMenuOn = true;
+int selectedLevel = 0;
 
 // There are four balls
 // initialize the position (coordinate) of each ball (ball0 ~ ball3)
@@ -37,10 +51,8 @@ const float spherePos[54][2] = { {-1.575f,3} , {-1.125f,3} , {-0.675f,3} ,{-0.22
 {-1.125f,1.65f},{1.125f,1.65f},{-1.125f,1.2f},{1.125f,1.2f},{-0.225f,0.75f},{-0.225f,0.3f},
 {-1.575f,-0.15f},{-1.125f,-0.6f},{-0.675f,-1.05f},{-0.225f,-1.05f},{0.225f,-1.05f},{0.675f,-1.05f},{1.125f,-0.6f},{1.575f,-0.15f},
 };
-
-
 // initialize the color of each ball (ball0 ~ ball3)
-const D3DXCOLOR sphereColor[3] = { d3d::YELLOW, d3d::RED, d3d::WHITE };
+const D3DXCOLOR sphereColor[5] = { d3d::YELLOW, d3d::RED, d3d::WHITE,d3d::CYAN,d3d::GREEN };
 
 // -----------------------------------------------------------------------------
 // Transform matrices
@@ -54,22 +66,26 @@ D3DXMATRIX g_mProj;
 #define M_HEIGHT 0.01
 #define DECREASE_RATE 0.9982
 
-//get ranposmap
-
-
 // -----------------------------------------------------------------------------
 // CSphere class definition
 // -----------------------------------------------------------------------------
 
+
+
 class CSphere {
 private:
 	float					center_x, center_y, center_z;
+	float					bf_center_x, bf_center_y, bf_center_z;
 	float                   m_radius;
 	float					m_velocity_x;
 	float					m_velocity_z;
 	int intersect;
+	
+	
+	D3DXCOLOR color_sphere;
 
 public:
+
 	CSphere(void)
 	{
 		D3DXMatrixIdentity(&m_mLocal);
@@ -87,7 +103,7 @@ public:
 	{
 		if (NULL == pDevice)
 			return false;
-
+		color_sphere = color;
 		m_mtrl.Ambient = color;
 		m_mtrl.Diffuse = color;
 		m_mtrl.Specular = color;
@@ -97,6 +113,19 @@ public:
 		if (FAILED(D3DXCreateSphere(pDevice, getRadius(), 50, 50, &m_pSphereMesh, NULL)))
 			return false;
 		return true;
+	}
+
+	D3DXCOLOR getcolor() {
+		return color_sphere;
+
+	}
+
+	void changecolor(D3DXCOLOR color) {
+		color_sphere = color;
+		m_mtrl.Ambient = color;
+		m_mtrl.Diffuse = color;
+		m_mtrl.Specular = color;
+
 	}
 
 	void destroy(void)
@@ -114,7 +143,12 @@ public:
 		pDevice->SetTransform(D3DTS_WORLD, &mWorld);
 		pDevice->MultiplyTransform(D3DTS_WORLD, &m_mLocal);
 		pDevice->SetMaterial(&m_mtrl);
-		m_pSphereMesh->DrawSubset(0);
+		if (m_pSphereMesh) { //prevent error when Lifeball disappears
+			m_pSphereMesh->DrawSubset(0);
+		}
+	}
+	void Update() {
+		bf_center_x = center_x, bf_center_z = center_z;
 	}
 
 	bool hasIntersected(CSphere& ball)
@@ -127,7 +161,11 @@ public:
 
 		if (distancebtwballs <= pow(M_RADIUS * 2, 2) && ball.intersect == 0) {
 			ball.intersect = 1;
+			ball.setCenter(ball.bf_center_x, center_y, ball.bf_center_z);
 			return true;
+		}
+		else {
+			ball.Update();
 		}
 		ball.intersect = 0;
 
@@ -144,8 +182,8 @@ public:
 		if (targetpos.z - redpos.z <= 0 && targetpos.x - redpos.x >= 0) { theta = -theta; }	//4 사분면
 		if (targetpos.z - redpos.z >= 0 && targetpos.x - redpos.x <= 0) { theta = PI - theta; } //2 사분면
 		if (targetpos.z - redpos.z <= 0 && targetpos.x - redpos.x <= 0) { theta = PI + theta; } // 3 사분면
-		double distance = sqrt(pow(targetpos.x - redpos.x, 2) + pow(targetpos.z - redpos.z, 2));
-		ball.setPower(-2 * cos(theta), -2 * sin(theta));
+		ball.setCenter(redpos.x - cos(theta)*0.02, redpos.y, redpos.z- sin(theta) * 0.02);
+		ball.setPower(-levelpower * cos(theta), -levelpower * sin(theta));
 
 
 
@@ -244,6 +282,7 @@ private:
 	float                   m_depth;
 	float					m_height;
 
+
 public:
 	CWall(void)
 	{
@@ -322,6 +361,7 @@ public:
 			ball.destroy();
 
 			spacecheck = 2;
+			count++;
 			vx = 0;
 			vz = 0;
 		}
@@ -449,9 +489,18 @@ CWall	g_legoPlane;
 CWall	g_legowall[3];
 CSphere	g_sphere_yellow[54];
 //CSphere	g_target_blueball;
+
+CSphere	g_lifeBall[5];
+
+
 CSphere	whiteball;
 CSphere	redball;
 CLight	g_light;
+
+//font variables
+ID3DXFont* g_pFontSmall = NULL;
+ID3DXFont* g_pFontBig = NULL;
+
 
 double g_camera_pos[3] = { 0.0, 5.0, -8.0 };
 
@@ -465,8 +514,8 @@ void destroyAllLegoBlock(void)
 }
 
 
-float * getrandompos(int num) {
-	float *row_col = new float[2];
+float* getrandompos(int num) {
+	float* row_col = new float[2];
 	row_col[0] = -2.925f + (num % 14) * 0.45f;
 	row_col[1] = 3.0f - float(num / 14) * 0.45f;
 
@@ -477,6 +526,7 @@ void getrandommap() {
 
 
 	int data[196], i, sub_i;
+	int data_color[196];
 
 	srand((unsigned int)time(NULL));
 	for (i = 0; i < 196; i++) {
@@ -488,19 +538,39 @@ void getrandommap() {
 			}
 		}
 	}
+	for (i = 0; i < 196; i++) {
+		data_color[i] = rand() % 196;//0~195
+		for (sub_i = 0; sub_i < i; sub_i++) {
+			if (data_color[i] == data_color[sub_i]) {
+				i--;
+				break;
+			}
+		}
+	}
 
 	for (int i = 0; i < 54; i++) {
-		if (false == g_sphere_yellow[i].create(Device, sphereColor[0])) return;
+		if (data_color[i] > 150) {
+			if (false == g_sphere_yellow[i].create(Device, sphereColor[4])) return;
+		}
+		else if (data_color[i] > 90) {
+			if (false == g_sphere_yellow[i].create(Device, sphereColor[3])) return;
+		}
+		else {
+			if (false == g_sphere_yellow[i].create(Device, sphereColor[0])) return;
+		}
 		
+
 		g_sphere_yellow[i].setCenter(getrandompos(data[i])[0], (float)M_RADIUS, getrandompos(data[i])[1]);
 		g_sphere_yellow[i].setPower(0, 0);
 	}
 }
 
+
 // initialization
 bool Setup()
 {
 	int i;
+	int j;
 
 	D3DXMatrixIdentity(&g_mWorld);
 	D3DXMatrixIdentity(&g_mView);
@@ -521,14 +591,16 @@ bool Setup()
 	g_legowall[2].setPosition(-3.56f, 0.12f, 0.0f);
 
 	// create four balls and set the position
-
-
 	for (i = 0; i < 54; i++) {
 		if (false == g_sphere_yellow[i].create(Device, sphereColor[0])) return false;
 		g_sphere_yellow[i].setCenter(spherePos[i][0], (float)M_RADIUS, spherePos[i][1]);
 		g_sphere_yellow[i].setPower(0, 0);
 	}
-	
+	// create life balls max 5 balls
+	for (j = 0; j < 5; j++) {
+		if (false == g_lifeBall[j].create(Device, sphereColor[2])) return false;
+		g_lifeBall[j].setCenter(-8.8f + 0.5f * j, 3.7f, 7.1f);
+	}
 
 
 	// create red, white ball for set direction
@@ -571,6 +643,11 @@ bool Setup()
 	Device->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD);
 
 	g_light.setLight(Device, g_mWorld);
+
+	D3DXCreateFont(Device, 20, 10, 1000, 1, false, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, 0, "신명조", &g_pFontSmall);
+	D3DXCreateFont(Device, 40, 20, 1000, 1, false, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, 0, "신명조", &g_pFontBig);
+
+
 	return true;
 }
 
@@ -582,11 +659,9 @@ void Cleanup(void)
 	}
 	destroyAllLegoBlock();
 	g_light.destroy();
+	g_pFontSmall->Release();
+	g_pFontBig->Release();
 }
-
-
-
-
 
 
 // timeDelta represents the time between the current image frame and the last image frame.
@@ -599,36 +674,159 @@ bool Display(float timeDelta)
 
 	if (Device)
 	{
+		//LPD3DXFONT pFont = NULL;
+		//LPD3DXSPRITE pTextSprite = NULL;
+
+
+
 		Device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00afafaf, 1.0f, 0);
 		Device->BeginScene();
 
+		RECT rc;
+		//D3DXCreateSprite(Device, &pTextSprite);
 
-		//Check the points then speed up gradually
-		//Check the points then plus other color blocks.
+		//pTextSprite->Begin(D3DXSPRITE_ALPHABLEND | D3DXSPRITE_SORT_TEXTURE);
 
+
+		SetRect(&rc, 10, 10, 0, 0);
+		g_pFontSmall->DrawText(NULL, _T("Life: "), -1, &rc, DT_NOCLIP, 0xffffff00);
+
+
+		std::string scoreStr1 = "Score: " + std::to_string(ballIntersected);
+		LPCSTR scoreLpcStr1 = scoreStr1.c_str();
+		SetRect(&rc, 200, 10, 0, 0);
+		g_pFontSmall->DrawText(NULL, _T(scoreLpcStr1), -1, &rc, DT_NOCLIP, 0xffffff00);
+
+
+		std::string scoreStr2 = (!isMenuOn && spacecheck == 0) ? (currentLife == -1 || isCleared ? "Press Spacebar To Try Again" : "Press Spacebar To Throw A Ball") : "";
+		LPCSTR scoreLpcStr2 = scoreStr2.c_str();
+		SetRect(&rc, 390, 680, 0, 0);
+		g_pFontSmall->DrawText(NULL, _T(scoreLpcStr2), -1, &rc, DT_NOCLIP, 0xff000000);
+
+		std::string scoreStr3 = currentLife == -1 ? "Game Over" : "";
+		LPCSTR scoreLpcStr3 = scoreStr3.c_str();
+		SetRect(&rc, 400, 300, 0, 0);
+		g_pFontBig->DrawText(NULL, _T(scoreLpcStr3), -1, &rc, DT_NOCLIP, 0xffff0000);
+
+		std::string scoreStr4 = currentLife == -1 ? ("Score: " + std::to_string(ballIntersected)) : "";
+		LPCSTR scoreLpcStr4 = scoreStr4.c_str();
+		SetRect(&rc, 455, 360, 0, 0);
+		g_pFontSmall->DrawText(NULL, _T(scoreLpcStr4), -1, &rc, DT_NOCLIP, 0xffff0000);
+
+		std::string scoreStr5 = isCleared ? "Congratulation!" : "";
+		LPCSTR scoreLpcStr5 = scoreStr5.c_str();
+		SetRect(&rc, 350, 300, 0, 0);
+		g_pFontBig->DrawText(NULL, _T(scoreLpcStr5), -1, &rc, DT_NOCLIP, 0xffff0000);
+
+
+		std::string menuStr1 = isMenuOn ? "Select Level" : "";
+		LPCSTR menuLpcStr1 = menuStr1.c_str();
+		SetRect(&rc, 50, 680, 0, 0);
+		g_pFontSmall->DrawText(NULL, _T(menuLpcStr1), -1, &rc, DT_NOCLIP, 0xff000000);
+
+		std::string menuStr2 = (isMenuOn && !(selectedLevel == 0)) ? "Normal" : "";
+		LPCSTR menuLpcStr2 = menuStr2.c_str();
+		SetRect(&rc, 300, 680, 0, 0);
+		g_pFontSmall->DrawText(NULL, _T(menuLpcStr2), -1, &rc, DT_NOCLIP, 0xff000000);
+
+		std::string menuStr3 = (isMenuOn && !(selectedLevel == 1)) ? "Hard" : "";
+		LPCSTR menuLpcStr3 = menuStr3.c_str();
+		SetRect(&rc, 500, 680, 0, 0);
+		g_pFontSmall->DrawText(NULL, _T(menuLpcStr3), -1, &rc, DT_NOCLIP, 0xff000000);
+
+		std::string menuStr4 = (isMenuOn && !(selectedLevel == 2)) ? "Infinity" : "";
+		LPCSTR menuLpcStr4 = menuStr4.c_str();
+		SetRect(&rc, 700, 680, 0, 0);
+		g_pFontSmall->DrawText(NULL, _T(menuLpcStr4), -1, &rc, DT_NOCLIP, 0xff000000);
+
+		std::string menuStr5 = (isMenuOn && (selectedLevel == 0)) ? "Normal" : "";
+		LPCSTR menuLpcStr5 = menuStr5.c_str();
+		SetRect(&rc, 300, 680, 0, 0);
+		g_pFontSmall->DrawText(NULL, _T(menuLpcStr5), -1, &rc, DT_NOCLIP, 0xffff0000);
+
+		std::string menuStr6 = (isMenuOn && (selectedLevel == 1)) ? "Hard" : "";
+		LPCSTR menuLpcStr6 = menuStr6.c_str();
+		SetRect(&rc, 500, 680, 0, 0);
+		g_pFontSmall->DrawText(NULL, _T(menuLpcStr6), -1, &rc, DT_NOCLIP, 0xffff0000);
+
+		std::string menuStr7 = (isMenuOn && (selectedLevel == 2)) ? "Infinity" : "";
+		LPCSTR menuLpcStr7 = menuStr7.c_str();
+		SetRect(&rc, 700, 680, 0, 0);
+		g_pFontSmall->DrawText(NULL, _T(menuLpcStr7), -1, &rc, DT_NOCLIP, 0xffff0000);
+
+		//pTextSprite->End();
 
 		// update the position of each ball. during update, check whether each ball hit by walls.
 
 		g_sphere_yellow[i].ballUpdate(timeDelta);
+		g_lifeBall[currentLife].ballUpdate(timeDelta);
 
 		whiteball.ballUpdate(timeDelta);
 		redball.ballUpdate(timeDelta);
 
+
+
+		//level1
+		//level2
+		//level3
 		// check whether any two balls hit together and update the direction of balls
+
+		
+
 		for (i = 0; i < 54; i++) {
 			if (g_sphere_yellow[i].hasIntersected(redball) == true) {
 
 				g_sphere_yellow[i].hitBy(redball);
-				g_sphere_yellow[i].destroy();
-				if (false == g_sphere_yellow[i].create(Device, sphereColor[0])) return false;
-				g_sphere_yellow[i].setCenter(222, (float)M_RADIUS, 222);
-				g_sphere_yellow[i].setPower(0, 0);
+
+				ballIntersected++;
+
+				if (ballIntersected > 53 && selectedLevel!=2) {
+					isCleared = true;
+				}
+				if (selectedLevel != 2) {
+					g_sphere_yellow[i].destroy();
+					if (false == g_sphere_yellow[i].create(Device, sphereColor[0])) return false;
+					g_sphere_yellow[i].setCenter(222, (float)M_RADIUS, 222);
+				}
+
+				if (selectedLevel == 2) {
+					
+					//color에 따른 비교
+					
+					if (g_sphere_yellow[i].getcolor() == d3d::YELLOW) {
+						g_sphere_yellow[i].destroy();
+						if (false == g_sphere_yellow[i].create(Device, sphereColor[0])) return false;
+						g_sphere_yellow[i].setCenter(222, (float)M_RADIUS, 222);
+						ballIntersected_inf++;
+
+					}
+					else if (g_sphere_yellow[i].getcolor() == d3d::CYAN) {
+						g_sphere_yellow[i].changecolor(d3d::YELLOW);
+
+					}
+					else if (g_sphere_yellow[i].getcolor() == d3d::GREEN) {
+
+						g_sphere_yellow[i].changecolor(d3d::CYAN);
+
+					}
+				}
 
 			}
-			//if color other -> yellow
+		}
+		if (selectedLevel == 2) {
+			levelpower = 2.0 + float(ballIntersected) / 30.0;
+
+			if (levelpower > 4) {
+				levelpower = 4;
+			}
+			if (ballIntersected_inf>53) {
+				getrandommap();
+				ballIntersected_inf = 0;
+			}
 		}
 
 		if (whiteball.hasIntersected(redball) == true) {
+
 
 			whiteball.hitBy(redball);
 
@@ -640,6 +838,17 @@ bool Display(float timeDelta)
 
 			g_legowall->hitBy(redball);
 			if (spacecheck == 2) {
+
+
+				//g_lifeBall[currentLife].setCenter(222, (float)M_RADIUS, 222);
+				//g_lifeBall[currentLife].setPower(0, 0);
+
+				if (currentLife > -1) {
+					g_lifeBall[currentLife].destroy();
+					currentLife--;
+				}
+
+
 				redball.create(Device, d3d::RED);
 				redball.setCenter(whiteball.getCenter().x, (float)M_RADIUS, -4.5f);
 				spacecheck = 0;
@@ -656,6 +865,9 @@ bool Display(float timeDelta)
 		for (i = 0; i < 54; i++) {
 			g_sphere_yellow[i].draw(Device, g_mWorld);
 		}
+		for (i = 0; i < 5; i++) {
+			g_lifeBall[i].draw(Device, g_mWorld);
+		}
 		redball.draw(Device, g_mWorld);
 		whiteball.draw(Device, g_mWorld);
 		g_light.draw(Device);
@@ -666,8 +878,6 @@ bool Display(float timeDelta)
 	}
 	return true;
 }
-
-
 
 LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -697,33 +907,85 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			}
 			break;
 		case VK_SPACE: //start
-			if (spacecheck == 0) {
+			if (isMenuOn) {
+				if (selectedLevel == 0) {
+					levelpower = 2;
+				}
+				if (selectedLevel == 1) {
+					levelpower = 3.5;
+				}
+				if (selectedLevel == 2) {
+					getrandommap();
+					levelpower = 2;
+				}
+				isMenuOn = false;
+			}
+			else {
+				
+				if (spacecheck == 0) {
 
-				redball.setPower(0, 2);
+					redball.setPower(0, levelpower);
+					if (currentLife == -1 || isCleared) {
+						
+						isCleared = false;
+						currentLife = 4;
+						ballIntersected = 0;
+						for (int j = 0; j < 5; j++) {
+							if (false == g_lifeBall[j].create(Device, sphereColor[2])) return false;
+							g_lifeBall[j].setCenter(-8.8f + 0.5f * j, 3.7f, 7.1f);
+						}
+						if (selectedLevel == 2) {
+							ballIntersected_inf = 0;
+							getrandommap();
+							levelpower = 2;
+						}
+						if (selectedLevel != 2) {
+							if (selectedLevel == 0) {
+								levelpower = 2;
+							}
+							if (selectedLevel == 1) {
+								levelpower = 3.5;
+							}
+							for (int i = 0; i < 54; i++) {
+								if (false == g_sphere_yellow[i].create(Device, sphereColor[0])) return false;
+								g_sphere_yellow[i].setCenter(spherePos[i][0], (float)M_RADIUS, spherePos[i][1]);
+								g_sphere_yellow[i].setPower(0, 0);
+							}
+						}
+						
+					}
+				}
+
+
+				spacecheck = 1;
+
+				/*double theta = acos(sqrt(pow(targetpos.x - whitepos.x, 2)) / sqrt(pow(targetpos.x - whitepos.x, 2) +
+					pow(targetpos.z - whitepos.z, 2)));		// 기본 1 사분면
+				if (targetpos.z - whitepos.z <= 0 && targetpos.x - whitepos.x >= 0) { theta = -theta; }	//4 사분면
+				if (targetpos.z - whitepos.z >= 0 && targetpos.x - whitepos.x <= 0) { theta = PI - theta; } //2 사분면
+				if (targetpos.z - whitepos.z <= 0 && targetpos.x - whitepos.x <= 0){ theta = PI + theta; } // 3 사분면
+				double distance = sqrt(pow(targetpos.x - whitepos.x, 2) + pow(targetpos.z - whitepos.z, 2));
+				g_sphere_yellow[3].setPower(distance * cos(theta), distance * sin(theta));*/
+
+				break;
 			}
 
-
-			spacecheck = 1;
-
-			/*double theta = acos(sqrt(pow(targetpos.x - whitepos.x, 2)) / sqrt(pow(targetpos.x - whitepos.x, 2) +
-				pow(targetpos.z - whitepos.z, 2)));		// 기본 1 사분면
-			if (targetpos.z - whitepos.z <= 0 && targetpos.x - whitepos.x >= 0) { theta = -theta; }	//4 사분면
-			if (targetpos.z - whitepos.z >= 0 && targetpos.x - whitepos.x <= 0) { theta = PI - theta; } //2 사분면
-			if (targetpos.z - whitepos.z <= 0 && targetpos.x - whitepos.x <= 0){ theta = PI + theta; } // 3 사분면
-			double distance = sqrt(pow(targetpos.x - whitepos.x, 2) + pow(targetpos.z - whitepos.z, 2));
-			g_sphere_yellow[3].setPower(distance * cos(theta), distance * sin(theta));*/
-
+		case 0x41:
+			if (isMenuOn) {
+				if (selectedLevel != 0) {
+					selectedLevel--;
+				}
+			}
 			break;
-
-
-		//임의 무한모드 진입키
-		//case VK_TAB:
-			
-
-
-
-
+		case 0x44:
+			if (isMenuOn) {
+				if (selectedLevel != 2) {
+					selectedLevel++;
+				}
+			}
+			break;
 		}
+
 		break;
 	}
 
@@ -741,7 +1003,7 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		whiteball.setCenter(coord3d_white.x + dx * (-0.007f), coord3d_white.y, coord3d_white.z);
 
 		if (spacecheck == 0) {
-			;
+
 
 			D3DXVECTOR3 coord3d_red = redball.getCenter();
 			redball.setCenter(coord3d_white.x + (dx) * (-0.007f), coord3d_red.y, coord3d_red.z);
